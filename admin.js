@@ -10,8 +10,9 @@ const passError = document.getElementById('passError');
 const adminWrap = document.getElementById('adminWrap');
 
 const statusPill = document.getElementById('statusPill');
+const roundTimer = document.getElementById('roundTimer');
 const lobbyCount = document.getElementById('lobbyCount');
-const lobbyList = document.getElementById('lobbyList');
+const lobbyBody = document.getElementById('lobbyBody');
 const lobbyEmpty = document.getElementById('lobbyEmpty');
 const startRoundBtn = document.getElementById('startRoundBtn');
 const newRoundBtn = document.getElementById('newRoundBtn');
@@ -25,6 +26,8 @@ const resetBtn = document.getElementById('resetBtn');
 
 let sesionActual = { estado: 'espera' };
 let todosLosJugadores = [];
+let roundTimerInterval = null;
+const MAX_SECONDS = 300; // debe coincidir con el límite del juego (5 minutos)
 
 function compareRecords(a, b){
   if (b.aciertos !== a.aciertos) return b.aciertos - a.aciertos;
@@ -90,25 +93,65 @@ function startListening(){
     .subscribe();
 }
 
+function formatElapsedSince(iniciadoEn){
+  if (!iniciadoEn) return 0;
+  const inicioMs = new Date(iniciadoEn).getTime();
+  if (isNaN(inicioMs)) return 0;
+  return Math.max(0, Math.floor((Date.now() - inicioMs) / 1000));
+}
+
+function tickRoundTimer(){
+  const s = Math.min(formatElapsedSince(sesionActual.iniciado_en), MAX_SECONDS);
+  roundTimer.textContent = '⏱ ' + formatTime(s);
+  roundTimer.classList.toggle('warning', s >= MAX_SECONDS - 30 && s < MAX_SECONDS);
+}
+
+function manageRoundTimer(){
+  const enJuego = sesionActual.estado === 'jugando';
+  if (enJuego){
+    roundTimer.style.display = 'inline-flex';
+    tickRoundTimer();
+    if (!roundTimerInterval) roundTimerInterval = setInterval(tickRoundTimer, 1000);
+  } else {
+    roundTimer.style.display = 'none';
+    roundTimer.classList.remove('warning');
+    if (roundTimerInterval){ clearInterval(roundTimerInterval); roundTimerInterval = null; }
+  }
+}
+
 function renderStatus(){
   const enJuego = sesionActual.estado === 'jugando';
   statusPill.textContent = enJuego ? '🟢 Juego en curso' : '🟡 Sala de espera';
   statusPill.classList.toggle('live', enJuego);
   const enSala = todosLosJugadores.filter(j => j.estado !== 'terminado').length;
   startRoundBtn.disabled = enJuego || enSala === 0;
+  manageRoundTimer();
+}
+
+function formatJoinTime(iso){
+  if (!iso) return '-';
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return '-';
+  return d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 }
 
 function renderLobby(){
   const enSala = todosLosJugadores.filter(j => j.estado !== 'terminado');
   lobbyCount.textContent = enSala.length + (enSala.length === 1 ? ' anotado' : ' anotados');
-  lobbyList.innerHTML = '';
+  lobbyBody.innerHTML = '';
   lobbyEmpty.style.display = enSala.length === 0 ? 'block' : 'none';
 
-  enSala.forEach(j => {
-    const li = document.createElement('li');
-    const estadoTxt = j.estado === 'jugando' ? '🎮 jugando' : '⏳ esperando';
-    li.innerHTML = '<b>' + escapeHtml(j.nombre) + '</b><span>' + escapeHtml(j.carrera) + ' · ' + estadoTxt + '</span>';
-    lobbyList.appendChild(li);
+  enSala.forEach((j, i) => {
+    const tr = document.createElement('tr');
+    const estadoClass = j.estado === 'jugando' ? 'jugando' : 'esperando';
+    const estadoTxt = j.estado === 'jugando' ? 'Jugando' : 'Esperando';
+    tr.innerHTML =
+      '<td class="idx">' + (i + 1) + '</td>' +
+      '<td>' + escapeHtml(j.nombre) + '</td>' +
+      '<td>' + escapeHtml(j.carrera) + '</td>' +
+      '<td><span class="estado-badge ' + estadoClass + '"><span class="dot"></span>' + estadoTxt + '</span></td>' +
+      '<td class="mono small">' + formatJoinTime(j.unido_en) + '</td>';
+    lobbyBody.appendChild(tr);
   });
 
   renderStatus();
