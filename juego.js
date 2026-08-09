@@ -127,13 +127,22 @@ function listenSesion(){
   sesionChannel = supabase
     .channel('sesion-jugador-' + jugadorId)
     .on('postgres_changes', { event: '*', schema: 'public', table: 'sesion', filter: 'id=eq.1' }, (payload) => {
-      const estado = payload.new ? payload.new.estado : 'espera';
-      if (estado === 'jugando' && !roundActive) beginRoundForPlayer();
+      const data = payload.new || {};
+      if (data.estado === 'jugando' && !roundActive){
+        beginRoundForPlayer(data.iniciado_en);
+      }
     })
     .subscribe();
 }
 
-async function beginRoundForPlayer(){
+function elapsedSince(iniciadoEn){
+  if (!iniciadoEn) return 0;
+  const inicioMs = new Date(iniciadoEn).getTime();
+  if (isNaN(inicioMs)) return 0;
+  return Math.max(0, Math.floor((Date.now() - inicioMs) / 1000));
+}
+
+async function beginRoundForPlayer(iniciadoEn){
   roundActive = true;
   showScreen(null);
   if (jugadorId){
@@ -141,10 +150,13 @@ async function beginRoundForPlayer(){
     catch (e){ console.error(e); }
   }
   resetGame();
+  startTimerFrom(elapsedSince(iniciadoEn));
 }
 
 // ---- Lógica del tablero ----
-function startTimer(){
+// El cronómetro arranca apenas el administrador da inicio (sincronizado para
+// todos los jugadores), no cuando cada uno toca su primera tarjeta.
+function runTimer(){
   if (timerId) return;
   timerId = setInterval(() => {
     seconds++;
@@ -156,6 +168,14 @@ function startTimer(){
       endGame('timeout');
     }
   }, 1000);
+}
+function startTimerFrom(elapsed){
+  seconds = Math.min(elapsed, MAX_SECONDS);
+  statTime.textContent = formatTime(seconds);
+  timeStat.classList.toggle('warning', seconds >= MAX_SECONDS - 30 && seconds < MAX_SECONDS);
+  if (finished) return;
+  if (seconds >= MAX_SECONDS){ endGame('timeout'); return; }
+  runTimer();
 }
 function stopTimer(){ clearInterval(timerId); timerId = null; }
 
@@ -169,7 +189,7 @@ function updateBinCount(era){
 
 function selectCard(card){
   if (finished) return;
-  startTimer();
+  runTimer(); // red de seguridad: por si el timer no arrancó al inicio de la ronda
   if (selectedCard) selectedCard.classList.remove('selected');
   if (selectedCard === card){ selectedCard = null; hint.textContent = 'Elegí una tarjeta ↓'; return; }
   selectedCard = card;
@@ -317,10 +337,10 @@ async function resumeIfJoined(){
       jugadorId = savedId;
       playerName = data.nombre;
       playerCareer = data.carrera;
-      const { data: sesionData } = await supabase.from('sesion').select('estado').eq('id', 1).single();
+      const { data: sesionData } = await supabase.from('sesion').select('estado, iniciado_en').eq('id', 1).single();
       const estadoActual = sesionData ? sesionData.estado : 'espera';
       if (estadoActual === 'jugando'){
-        beginRoundForPlayer();
+        beginRoundForPlayer(sesionData ? sesionData.iniciado_en : null);
       } else {
         enterWaitingRoom();
       }
