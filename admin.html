@@ -57,10 +57,24 @@
   <section class="lobby-card">
     <div class="lobby-top">
       <span class="status-pill" id="statusPill">🟡 Sala de espera</span>
+      <span class="round-timer mono" id="roundTimer" style="display:none;">⏱ 00:00</span>
       <span class="lobby-count mono" id="lobbyCount">0 anotados</span>
     </div>
-    <ul class="lobby-list" id="lobbyList"></ul>
-    <p class="empty small" id="lobbyEmpty">Todavía no se anotó nadie. Compartí el link del juego para que se anoten.</p>
+    <div class="lobby-table-wrap">
+      <table class="lobby-table" id="lobbyTable">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Nombre</th>
+            <th>Carrera</th>
+            <th>Estado</th>
+            <th>Se anotó</th>
+          </tr>
+        </thead>
+        <tbody id="lobbyBody"></tbody>
+      </table>
+      <p class="empty small" id="lobbyEmpty">Todavía no se anotó nadie. Compartí el link del juego para que se anoten.</p>
+    </div>
     <div class="lobby-actions">
       <button class="start-round-btn" id="startRoundBtn" disabled>▶ Iniciar juego para todos</button>
       <button class="ghost-btn" id="newRoundBtn">🔁 Nueva ronda (volver a sala de espera)</button>
