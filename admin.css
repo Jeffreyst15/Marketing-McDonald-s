@@ -128,18 +128,40 @@
     background:#FFF6E0; border:1px solid #F2D9A0; color:#8a5a1f;
   }
   .status-pill.live{background:#E4F7ED; border-color:#a9e3c3; color:#1d7a49;}
-  .lobby-count{font-size:.78rem; color:var(--dim);}
-  .lobby-list{
-    list-style:none; display:flex; flex-wrap:wrap; gap:.5rem;
-    margin-bottom:.4rem; max-height:180px; overflow-y:auto;
+  .round-timer{
+    font-weight:700; font-size:.95rem; color:var(--ink);
+    background:var(--cream); border:1px solid var(--line);
+    padding:.4rem .8rem; border-radius:8px;
+    transition:color .2s ease, border-color .2s ease;
   }
-  .lobby-list li{
-    background:var(--cream); border:1px solid var(--line); border-radius:10px;
-    padding:.45rem .8rem; font-size:.82rem;
+  .round-timer.warning{color:var(--bad); border-color:#f3c9c2; animation:pulseWarnAdmin 1s ease-in-out infinite;}
+  @keyframes pulseWarnAdmin{0%,100%{opacity:1;} 50%{opacity:.5;}}
+  .lobby-count{font-size:.78rem; color:var(--dim); margin-left:auto;}
+
+  .lobby-table-wrap{
+    border:1px solid var(--line); border-radius:12px; overflow:hidden;
+    margin-bottom:.4rem;
   }
-  .lobby-list li b{font-family:'Sora',sans-serif;}
-  .lobby-list li span{color:var(--dim); font-size:.74rem; display:block;}
-  .empty.small{font-size:.82rem; color:var(--dim); padding:.4rem 0;}
+  .lobby-table{width:100%; border-collapse:collapse;}
+  .lobby-table thead th{
+    text-align:left; font-family:'Space Mono',monospace; font-size:.62rem; text-transform:uppercase;
+    letter-spacing:.05em; color:var(--dim); background:var(--cream);
+    padding:.55rem .8rem; border-bottom:1px solid var(--line);
+  }
+  .lobby-table tbody td{
+    padding:.55rem .8rem; font-size:.82rem; border-bottom:1px solid var(--line);
+  }
+  .lobby-table tbody tr:last-child td{border-bottom:none;}
+  .lobby-table tbody tr:hover{background:#FAF5E8;}
+  .lobby-table td.idx{font-family:'Space Mono',monospace; color:var(--dim); font-size:.76rem;}
+  .estado-badge{
+    display:inline-flex; align-items:center; gap:.4rem;
+    font-size:.78rem; font-weight:600;
+  }
+  .estado-badge .dot{width:8px; height:8px; border-radius:50%; flex:0 0 auto;}
+  .estado-badge.esperando .dot{background:#c9a227;}
+  .estado-badge.jugando .dot{background:#2FAE66; animation:pulseWarnAdmin 1.2s ease-in-out infinite;}
+  .empty.small{font-size:.82rem; color:var(--dim); padding:1rem .8rem; text-align:center;}
   .lobby-actions{display:flex; gap:.7rem; flex-wrap:wrap; margin-top:1rem;}
   .start-round-btn{
     font-family:'Sora',sans-serif; font-weight:800; font-size:.9rem; color:#fff;
