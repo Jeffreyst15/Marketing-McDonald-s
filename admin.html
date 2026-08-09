@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panel administrador · Juego McDonald's</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="admin.css">
+</head>
+<body>
+
+<div class="topbar">
+  <a class="back-link" href="index.html">← Presentación</a>
+  <a class="back-link" href="juego.html">🎮 Ir al juego</a>
+</div>
+
+<!-- Pantalla de configuración pendiente (si falta configurar Supabase) -->
+<div class="overlay show" id="configScreen" style="display:none;">
+  <div class="modal">
+    <span class="modal-emoji">⚙️</span>
+    <h2>Falta configurar la conexión</h2>
+    <p>Este panel necesita conectarse a Supabase para ver los jugadores y controlar el juego en tiempo real desde cualquier dispositivo.</p>
+    <p>Completá el archivo <code>supabase-config.js</code> siguiendo <code>README-SUPABASE.md</code> y volvé a abrir esta página.</p>
+  </div>
+</div>
+
+<!-- Gate de contraseña -->
+<div class="overlay show" id="passGate">
+  <div class="modal">
+    <span class="modal-emoji">🔒</span>
+    <h2>Panel administrador</h2>
+    <p>Ingresá la contraseña para ver los resultados de los jugadores.</p>
+    <div class="field">
+      <label for="passInput">Contraseña</label>
+      <input id="passInput" type="password" placeholder="••••••••" autocomplete="off" />
+    </div>
+    <button class="primary-btn" id="passBtn">Entrar</button>
+    <p class="err" id="passError"></p>
+  </div>
+</div>
+
+<main class="admin-wrap" id="adminWrap" style="display:none;">
+  <header class="admin-header">
+    <div>
+      <span class="kicker">Panel administrador · en vivo</span>
+      <h1>Sala del juego</h1>
+      <p class="sub">Clasificá la Estrategia · McDonald's 1.0 – 4.0</p>
+    </div>
+    <div class="admin-actions">
+      <button class="ghost-btn danger" id="resetBtn">🗑 Borrar datos</button>
+    </div>
+  </header>
+
+  <!-- Sala de espera / control de inicio -->
+  <section class="lobby-card">
+    <div class="lobby-top">
+      <span class="status-pill" id="statusPill">🟡 Sala de espera</span>
+      <span class="lobby-count mono" id="lobbyCount">0 anotados</span>
+    </div>
+    <ul class="lobby-list" id="lobbyList"></ul>
+    <p class="empty small" id="lobbyEmpty">Todavía no se anotó nadie. Compartí el link del juego para que se anoten.</p>
+    <div class="lobby-actions">
+      <button class="start-round-btn" id="startRoundBtn" disabled>▶ Iniciar juego para todos</button>
+      <button class="ghost-btn" id="newRoundBtn">🔁 Nueva ronda (volver a sala de espera)</button>
+    </div>
+  </section>
+
+  <div id="topBanner"></div>
+
+  <div class="summary-row" id="summaryRow"></div>
+
+  <div class="table-wrap">
+    <table id="tabla">
+      <thead>
+        <tr>
+          <th>Puesto</th>
+          <th>Nombre</th>
+          <th>Carrera</th>
+          <th>Tiempo</th>
+          <th>Aciertos</th>
+          <th>Errores</th>
+          <th>Estado</th>
+        </tr>
+      </thead>
+      <tbody id="tablaBody"></tbody>
+    </table>
+    <p class="empty" id="emptyMsg" style="display:none;">Todavía no hay resultados. Apenas alguien termine una partida, va a aparecer acá automáticamente.</p>
+  </div>
+
+  <div class="table-actions">
+    <button class="ghost-btn" id="exportBtn">⬇ Exportar CSV</button>
+  </div>
+
+  <p class="note">🔴 Esta vista se actualiza sola, en tiempo real, para cualquier dispositivo conectado a la misma sala.</p>
+</main>
+
+<script type="module" src="admin.js"></script>
+</body>
+</html>
