@@ -2,16 +2,16 @@ import { supabase, CONFIGURADO } from './supabase-init.js';
 
 // Banco de estrategias: 10 tarjetas distribuidas parejo en las 5 eras de marketing
 const STRATEGIES = [
-  { era: 1, text: "Estandarización total (Speedee Service)" },
+  { era: 1, text: "Precio bajo y uniforme" },
   { era: 1, text: "Menú reducido y fijo" },
-  { era: 2, text: "Happy Meal para el segmento infantil" },
-  { era: 2, text: "Campaña emocional global 'i'm lovin' it'" },
+  { era: 2, text: "Producto por segmento infantil" },
+  { era: 2, text: "Sub-marca para adultos" },
   { era: 3, text: "Rediseño saludable del menú" },
   { era: 3, text: "Abastecimiento sostenible certificado" },
   { era: 4, text: "App con programa de lealtad" },
   { era: 4, text: "Kioscos de autoservicio" },
   { era: 5, text: "Menú personalizado con IA (Dynamic Yield)" },
-  { era: 5, text: "Pedidos por voz con IA en el drive-thru" },
+  { era: 5, text: "Cocinas inteligentes" },
 ];
 
 const MAX_SECONDS = 300; // 5 minutos
