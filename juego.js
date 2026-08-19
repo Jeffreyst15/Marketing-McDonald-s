@@ -19,6 +19,9 @@ const SESSION_ID_KEY = 'mcdJugadorId'; // por pestaña, así una misma compu sop
 
 // ---- Referencias del DOM ----
 const configScreen = document.getElementById('configScreen');
+const connErrorScreen = document.getElementById('connErrorScreen');
+const connErrorDetail = document.getElementById('connErrorDetail');
+const connRetryBtn = document.getElementById('connRetryBtn');
 const pool = document.getElementById('pool');
 const bins = Array.from(document.querySelectorAll('.bin'));
 const statCorrect = document.getElementById('statCorrect');
@@ -110,9 +113,11 @@ async function tryJoin(){
     enterWaitingRoom();
   } catch (e){
     console.error(e);
-    gateError.textContent = 'No se pudo conectar. Revisá tu conexión e intentá de nuevo.';
+    const detalle = e && e.message ? e.message : 'error desconocido';
+    gateError.textContent = 'No se pudo anotar (' + detalle + '). Avisale al administrador.';
   } finally {
     startBtn.disabled = false;
+    updateStartBtnState();
   }
 }
 
@@ -373,9 +378,37 @@ function updateStartBtnState(){
 updateStartBtnState();
 
 // ---- Arranque ----
-if (!CONFIGURADO){
-  configScreen.style.display = 'flex';
-  showScreen(null);
-} else {
+async function verificarConexion(){
+  try {
+    const { error } = await supabase.from('sesion').select('id').eq('id', 1).single();
+    if (error) throw error;
+    return true;
+  } catch (e){
+    console.error('Error verificando conexión con Supabase:', e);
+    connErrorDetail.textContent = 'Detalle técnico: ' + (e && e.message ? e.message : String(e));
+    return false;
+  }
+}
+
+async function iniciar(){
+  if (!CONFIGURADO){
+    configScreen.style.display = 'flex';
+    showScreen(null);
+    return;
+  }
+  const ok = await verificarConexion();
+  if (!ok){
+    connErrorScreen.style.display = 'flex';
+    showScreen(null);
+    return;
+  }
+  connErrorScreen.style.display = 'none';
   resumeIfJoined();
 }
+connRetryBtn.addEventListener('click', () => {
+  connErrorScreen.style.display = 'none';
+  iniciar();
+});
+
+iniciar();
+          
