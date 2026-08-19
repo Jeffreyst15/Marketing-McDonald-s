@@ -169,6 +169,11 @@
     transition:transform .18s ease, background-position .4s ease;
   }
   .primary-btn:hover{transform:translateY(-2px); background-position:100% 0;}
+  .primary-btn:disabled{
+    background:#D9D2C2; color:#8a8378; cursor:not-allowed;
+    box-shadow:none; transform:none;
+  }
+  .primary-btn:disabled:hover{transform:none; background-position:0 0;}
   .err{color:var(--bad); font-size:.8rem; margin-top:.8rem; min-height:1em;}
   .admin-inline-link{
     display:inline-block; margin-top:.9rem;
