@@ -3,6 +3,9 @@ import { supabase, CONFIGURADO } from './supabase-init.js';
 const ADMIN_PASSWORD = 'mcdonalds2026';
 
 const configScreen = document.getElementById('configScreen');
+const connErrorScreen = document.getElementById('connErrorScreen');
+const connErrorDetail = document.getElementById('connErrorDetail');
+const connRetryBtn = document.getElementById('connRetryBtn');
 const passGate = document.getElementById('passGate');
 const passInput = document.getElementById('passInput');
 const passBtn = document.getElementById('passBtn');
@@ -267,9 +270,38 @@ exportBtn.addEventListener('click', () => {
 });
 
 // ---- Arranque ----
-if (!CONFIGURADO){
-  configScreen.style.display = 'flex';
-  passGate.classList.remove('show');
-} else {
+async function verificarConexion(){
+  try {
+    const { error } = await supabase.from('sesion').select('id').eq('id', 1).single();
+    if (error) throw error;
+    return true;
+  } catch (e){
+    console.error('Error verificando conexión con Supabase:', e);
+    connErrorDetail.textContent = 'Detalle técnico: ' + (e && e.message ? e.message : String(e));
+    return false;
+  }
+}
+
+async function iniciar(){
+  if (!CONFIGURADO){
+    configScreen.style.display = 'flex';
+    passGate.classList.remove('show');
+    return;
+  }
+  const ok = await verificarConexion();
+  if (!ok){
+    connErrorScreen.style.display = 'flex';
+    passGate.classList.remove('show');
+    return;
+  }
+  connErrorScreen.style.display = 'none';
+  passGate.classList.add('show');
   setTimeout(() => passInput.focus(), 200);
 }
+connRetryBtn.addEventListener('click', () => {
+  connErrorScreen.style.display = 'none';
+  iniciar();
+});
+
+iniciar();
+    
