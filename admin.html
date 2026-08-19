@@ -26,6 +26,22 @@
   </div>
 </div>
 
+<!-- Pantalla de error de conexión (config completada pero Supabase no responde bien) -->
+<div class="overlay show" id="connErrorScreen" style="display:none;">
+  <div class="modal">
+    <span class="modal-emoji">🚫</span>
+    <h2>No se pudo conectar con la base de datos</h2>
+    <p>La configuración está cargada, pero Supabase devolvió un error al consultar los datos. Esto suele pasar por alguna de estas causas:</p>
+    <p style="text-align:left; font-size:.82rem;">
+      • El proyecto de Supabase está <b>pausado</b> por inactividad (entrá al panel y reactivalo).<br>
+      • No se corrió el SQL completo de <code>README-SUPABASE.md</code> (faltan tablas o políticas RLS).<br>
+      • La URL o la clave en <code>supabase-config.js</code> están mal copiadas.
+    </p>
+    <p class="err" id="connErrorDetail" style="min-height:auto;"></p>
+    <button class="primary-btn" id="connRetryBtn" style="margin-top:1rem;">Reintentar</button>
+  </div>
+</div>
+
 <!-- Gate de contraseña -->
 <div class="overlay show" id="passGate">
   <div class="modal">
